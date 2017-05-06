@@ -1,0 +1,5 @@
+.DS_Store
+build/
+main/main
+main.xcodeproj/xcuserdata
+main.xcodeproj/project.xcworkspace

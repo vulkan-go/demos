@@ -1,0 +1,9 @@
+android/bin/
+android/build.xml
+android/jni/lib/
+android/libs/
+android/local.properties
+android/obj/
+android/proguard-project.txt
+android/project.properties
+toolchain/
