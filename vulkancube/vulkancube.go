@@ -814,16 +814,19 @@ func (s *SpinningCube) VulkanContextCleanup() error {
 	return nil
 }
 
+func (s *SpinningCube) NextFrame() {
+	var Model lin.Mat4x4
+	Model.Dup(&s.modelMatrix)
+	// Rotate around the Y axis
+	s.modelMatrix.Rotate(&Model, 0.0, 1.0, 0.0, lin.DegreesToRadians(s.spinAngle))
+}
+
 func (s *SpinningCube) VulkanContextInvalidate(imageIdx int) error {
 	dev := s.Context().Device()
 	res := s.Context().SwapchainImageResources()[imageIdx]
 
-	var MVP, Model, VP lin.Mat4x4
+	var MVP, VP lin.Mat4x4
 	VP.Mult(&s.projectionMatrix, &s.viewMatrix)
-
-	// Rotate around the Y axis
-	Model.Dup(&s.modelMatrix)
-	s.modelMatrix.Rotate(&Model, 0.0, 1.0, 0.0, lin.DegreesToRadians(s.spinAngle))
 	MVP.Mult(&VP, &s.modelMatrix)
 
 	data := MVP.Data()

@@ -74,7 +74,7 @@ func (a *Application) VulkanInstanceExtensions() []string {
 
 func NewApplication(debugEnabled bool) *Application {
 	return &Application{
-		SpinningCube: vulkancube.NewSpinningCube(2.0),
+		SpinningCube: vulkancube.NewSpinningCube(1.0),
 
 		debugEnabled: debugEnabled,
 	}
@@ -126,14 +126,13 @@ func main() {
 				continue
 			}
 			glfw.PollEvents()
+			app.NextFrame()
 
 			imageIdx, outdated, err := app.Context().AcquireNextImage()
 			orPanic(err)
-			for outdated {
-				imageIdx, outdated, err = app.Context().AcquireNextImage()
-				if outdated {
-					time.Sleep(fpsDelay)
-				}
+			if outdated {
+				imageIdx, _, err = app.Context().AcquireNextImage()
+				orPanic(err)
 			}
 			_, err = app.Context().PresentImage(imageIdx)
 			orPanic(err)

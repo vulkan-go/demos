@@ -73,7 +73,7 @@ func (a *Application) VulkanInstanceExtensions() []string {
 
 func NewApplication(debugEnabled bool) *Application {
 	return &Application{
-		SpinningCube: vulkancube.NewSpinningCube(2.0),
+		SpinningCube: vulkancube.NewSpinningCube(1.0),
 
 		debugEnabled: debugEnabled,
 	}
@@ -103,10 +103,15 @@ func main() {
 		var (
 			cubeApp  *Application
 			platform as.Platform
+			ctx      as.Context
 			err      error
 			vkActive bool
+
+			lastRender time.Duration
 		)
 
+		fpsDelay := time.Second / 60
+		fpsTicker := time.NewTicker(fpsDelay)
 		for {
 			select {
 			case <-a.LifecycleEvents():
@@ -126,7 +131,8 @@ func main() {
 					// creates a new platform, also initializes Vulkan context in the cubeApp
 					platform, err = as.NewPlatform(cubeApp)
 					orPanic(err)
-					dim := cubeApp.Context().SwapchainDimensions()
+					ctx = cubeApp.Context()
+					dim := ctx.SwapchainDimensions()
 					log.Printf("Initialized %s with %+v swapchain", cubeApp.VulkanAppName(), dim)
 					vkActive = true
 				case app.NativeWindowDestroyed:
@@ -135,26 +141,32 @@ func main() {
 					vkActive = false
 				case app.NativeWindowRedrawNeeded:
 					a.NativeWindowRedrawDone()
+				}
+			case <-fpsTicker.C:
+				if vkActive {
+					cubeApp.NextFrame()
 
-					ctx := cubeApp.Context()
-					const fpsDelay = time.Second / 60
-					if vkActive {
-						for {
-							imageIdx, outdated, err := ctx.AcquireNextImage()
-							orPanic(err)
-							for outdated {
-								log.Println("swapchain outdated, re-acquire image")
-								imageIdx, outdated, err = ctx.AcquireNextImage()
-								if outdated {
-									time.Sleep(fpsDelay)
-								}
-							}
-							_, err = ctx.PresentImage(imageIdx)
-							orPanic(err)
-
-							time.Sleep(fpsDelay)
-						}
+					// https://source.android.com/devices/graphics/arch-gameloops
+					// FPS may drop down when no interacton with the app, should skip frames there.
+					// TODO: use VK_GOOGLE_display_timing_enabled as cool guys would do. Don't be an uncool fool.
+					if lastRender > fpsDelay {
+						// skip frame
+						lastRender = lastRender - fpsDelay
+						continue
 					}
+					ts := time.Now()
+
+					imageIdx, outdated, err := ctx.AcquireNextImage()
+					orPanic(err)
+					if outdated {
+						imageIdx, _, err = ctx.AcquireNextImage()
+						orPanic(err)
+					}
+					_ = imageIdx
+					_, err = ctx.PresentImage(imageIdx)
+					orPanic(err)
+
+					lastRender = time.Since(ts)
 				}
 			}
 		}
