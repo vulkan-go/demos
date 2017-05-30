@@ -1,19 +1,15 @@
-Golang Vulkan API Demos
-=======================
+## VulkanCube
 
-* vulcaninfo
-* vulcandraw
-* vulcancube
+![vulkan cube golang](http://dl.xlab.is/vulkan/screens/cube.gif)
 
 ## Supported platforms
 
 * Windows (GLFW)
 * Android (Native)
 * Linux graphics (GLFW)
-* Linux computing (X11)
 * OS X / macOS (GLFW + MoltenVK)
 * iOS (Metal + MoltenVK)
 
-## License
+## License 
 
-[WTFPL](LICENSE.txt)
+WTFPL
