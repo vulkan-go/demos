@@ -1,8 +1,6 @@
 Golang Vulkan API Demos
 =======================
 
-![vulkan cube golang](http://dl.xlab.is/vulkan/screens/cube.gif)
-
 * vulcaninfo
 * vulcandraw
 * vulcancube
