@@ -1,6 +1,6 @@
 WORK ?= $(shell pwd)
 PACKAGE ?= github.com/vulkan-go/demos/vulkaninfo/vulkaninfo_ios
-MOLTEN_FW ?= /Users/xlab/Documents/dev/Molten-0.13.0/MoltenVK/iOS/
+MOLTEN_FW ?= /Users/xlab/Documents/dev/Molten-0.17.0/MoltenVK/iOS/
 
 CC ?= $(shell xcrun --sdk iphoneos --find clang)
 CXX ?= $(shell xcrun --sdk iphoneos --find clang)

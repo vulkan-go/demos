@@ -34,7 +34,7 @@ func main() {
 					vkDevice, err = vulkaninfo.NewVulkanDevice(appInfo, event.View)
 					orPanic(err)
 					vulkaninfo.PrintInfo(vkDevice)
-				case app.ApplicationWillTerminate:
+				case app.WillTerminate:
 					vkDevice.Destroy()
 				}
 			}
