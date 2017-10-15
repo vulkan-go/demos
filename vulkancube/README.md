@@ -1,6 +1,6 @@
 ## VulkanCube
 
-![vulkan cube golang](http://dl.xlab.is/vulkan/screens/cube.gif)
+![vulkan cube golang](http://dl.kc.vc/vulkan/screens/cube.gif)
 
 ## Supported platforms
 
