@@ -31,7 +31,7 @@ In all cases you will run `XXX_desktop` demos.
 
 ## How to run on Android
 
-Refer to [android-go/example](https://github.com/xlab/android-go/tree/master/example)
+Refer to [xlab/android-go/examples/minimal](https://github.com/xlab/android-go/tree/master/examples/minimal)
 
 ## License
 
