@@ -14,6 +14,7 @@ var appInfo = &vk.ApplicationInfo{
 }
 
 func main() {
+	orPanic(vk.SetDefaultGetInstanceProcAddr())
 	orPanic(vk.Init())
 	vkDevice, err := vulkaninfo.NewVulkanDevice(appInfo, 0)
 	orPanic(err)

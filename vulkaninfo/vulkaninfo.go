@@ -19,7 +19,7 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (*VulkanDevice
 	v := &VulkanDeviceInfo{}
 
 	// step 1: create a Vulkan instance.
-	instanceExtensions := vk.GetRequiredInstanceExtensions()
+	var instanceExtensions []string
 	instanceCreateInfo := &vk.InstanceCreateInfo{
 		SType:                   vk.StructureTypeInstanceCreateInfo,
 		PApplicationInfo:        appInfo,
@@ -34,21 +34,13 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (*VulkanDevice
 		vk.InitInstance(v.instance)
 	}
 
-	// step 2: init the surface using the native window pointer.
-	err = vk.Error(vk.CreateWindowSurface(v.instance, window, nil, &v.surface))
-	if err != nil {
-		vk.DestroyInstance(v.instance, nil)
-		err = fmt.Errorf("vkCreateWindowSurface failed with %s", err)
-		return nil, err
-	}
 	if v.gpuDevices, err = getPhysicalDevices(v.instance); err != nil {
 		v.gpuDevices = nil
-		vk.DestroySurface(v.instance, v.surface, nil)
 		vk.DestroyInstance(v.instance, nil)
 		return nil, err
 	}
 
-	// step 3: create a logical device from the first GPU available.
+	// step 2: create a logical device from the first GPU available.
 	queueCreateInfos := []vk.DeviceQueueCreateInfo{{
 		SType:            vk.StructureTypeDeviceQueueCreateInfo,
 		QueueCount:       1,
@@ -84,7 +76,6 @@ func (v *VulkanDeviceInfo) Destroy() {
 		return
 	}
 	v.gpuDevices = nil
-	vk.DestroySurface(v.instance, v.surface, nil)
 	vk.DestroyDevice(v.device, nil)
 	vk.DestroyInstance(v.instance, nil)
 }

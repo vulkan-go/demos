@@ -95,7 +95,7 @@ func main() {
 
 	app := NewApplication(true)
 	reqDim := app.VulkanSwapchainDimensions()
-	window, err := sdl.CreateWindow("VulkanCube SDL2",
+	window, err := sdl.CreateWindow("VulkanCube (SDL2)",
 		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		int32(reqDim.Width), int32(reqDim.Height),
 		sdl.WINDOW_VULKAN)
