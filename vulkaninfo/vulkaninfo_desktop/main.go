@@ -16,6 +16,7 @@ var appInfo = &vk.ApplicationInfo{
 
 func main() {
 	orPanic(glfw.Init())
+	vk.SetGetInstanceProcAddr(glfw.GetVulkanGetInstanceProcAddress())
 	orPanic(vk.Init())
 
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)

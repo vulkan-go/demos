@@ -20,16 +20,16 @@ func init() {
 type Application struct {
 	*vulkancube.SpinningCube
 	debugEnabled bool
-	windowHandle uintptr
+	windowHandle *glfw.Window
 }
 
 func (a *Application) VulkanSurface(instance vk.Instance) (surface vk.Surface) {
-	ret := vk.CreateWindowSurface(instance, a.windowHandle, nil, &surface)
-	if err := vk.Error(ret); err != nil {
-		log.Println("vulkan error:", err)
+	surfPtr, err := a.windowHandle.CreateWindowSurface(instance, nil)
+	if err != nil {
+		log.Println(err)
 		return vk.NullSurface
 	}
-	return surface
+	return vk.SurfaceFromPointer(surfPtr)
 }
 
 func (a *Application) VulkanAppName() string {
@@ -38,13 +38,13 @@ func (a *Application) VulkanAppName() string {
 
 func (a *Application) VulkanLayers() []string {
 	return []string{
-	// "VK_LAYER_GOOGLE_threading",
-	// "VK_LAYER_LUNARG_parameter_validation",
-	// "VK_LAYER_LUNARG_object_tracker",
-	// "VK_LAYER_LUNARG_core_validation",
-	// "VK_LAYER_LUNARG_api_dump",
-	// "VK_LAYER_LUNARG_swapchain",
-	// "VK_LAYER_GOOGLE_unique_objects",
+		// "VK_LAYER_GOOGLE_threading",
+		// "VK_LAYER_LUNARG_parameter_validation",
+		// "VK_LAYER_LUNARG_object_tracker",
+		// "VK_LAYER_LUNARG_core_validation",
+		// "VK_LAYER_LUNARG_api_dump",
+		// "VK_LAYER_LUNARG_swapchain",
+		// "VK_LAYER_GOOGLE_unique_objects",
 	}
 }
 
@@ -65,7 +65,7 @@ func (a *Application) VulkanSwapchainDimensions() *as.SwapchainDimensions {
 }
 
 func (a *Application) VulkanInstanceExtensions() []string {
-	extensions := vk.GetRequiredInstanceExtensions()
+	extensions := a.windowHandle.GetRequiredInstanceExtensions()
 	if a.debugEnabled {
 		extensions = append(extensions, "VK_EXT_debug_report")
 	}
@@ -82,15 +82,16 @@ func NewApplication(debugEnabled bool) *Application {
 
 func main() {
 	orPanic(glfw.Init())
+	vk.SetGetInstanceProcAddr(glfw.GetVulkanGetInstanceProcAddress())
 	orPanic(vk.Init())
 	defer closer.Close()
 
 	app := NewApplication(true)
 	reqDim := app.VulkanSwapchainDimensions()
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
-	window, err := glfw.CreateWindow(int(reqDim.Width), int(reqDim.Height), app.VulkanAppName(), nil, nil)
+	window, err := glfw.CreateWindow(int(reqDim.Width), int(reqDim.Height), "VulkanCube (GLTF)", nil, nil)
 	orPanic(err)
-	app.windowHandle = window.GLFWWindow()
+	app.windowHandle = window
 
 	// creates a new platform, also initializes Vulkan context in the app
 	platform, err := as.NewPlatform(app)
