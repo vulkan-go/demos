@@ -89,7 +89,7 @@ func main() {
 	app := NewApplication(true)
 	reqDim := app.VulkanSwapchainDimensions()
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
-	window, err := glfw.CreateWindow(int(reqDim.Width), int(reqDim.Height), "VulkanCube (GLTF)", nil, nil)
+	window, err := glfw.CreateWindow(int(reqDim.Width), int(reqDim.Height), "VulkanCube (GLFW)", nil, nil)
 	orPanic(err)
 	app.windowHandle = window
 
