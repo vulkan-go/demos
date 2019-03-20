@@ -24,6 +24,12 @@ func init() {
 }
 
 func main() {
+	procAddr := glfw.GetVulkanGetInstanceProcAddress()
+	if procAddr == nil {
+		panic("GetInstanceProcAddress is nil")
+	}
+	vk.SetGetInstanceProcAddr(procAddr)
+
 	orPanic(glfw.Init())
 	orPanic(vk.Init())
 	defer closer.Close()
@@ -40,7 +46,16 @@ func main() {
 	window, err := glfw.CreateWindow(640, 480, "Vulkan Info", nil, nil)
 	orPanic(err)
 
-	v, err = vulkandraw.NewVulkanDevice(appInfo, window.GLFWWindow())
+	createSurface := func(instance interface{}) uintptr {
+		surface, err := window.CreateWindowSurface(instance, nil)
+		orPanic(err)
+		return surface
+	}
+
+	v, err = vulkandraw.NewVulkanDevice(appInfo,
+		window.GLFWWindow(),
+		window.GetRequiredInstanceExtensions(),
+		createSurface)
 	orPanic(err)
 	s, err = v.CreateSwapchain()
 	orPanic(err)
