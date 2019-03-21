@@ -257,13 +257,13 @@ func CreateRenderer(device vk.Device, displayFormat vk.Format) (VulkanRenderInfo
 	return r, nil
 }
 
-func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (VulkanDeviceInfo, error) {
+func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr, instanceExtensions []string, createSurfaceFunc func(interface{}) uintptr) (VulkanDeviceInfo, error) {
 	// Phase 1: vk.CreateInstance with vk.InstanceCreateInfo
 
 	existingExtensions := getInstanceExtensions()
 	log.Println("[INFO] Instance extensions:", existingExtensions)
 
-	instanceExtensions := vk.GetRequiredInstanceExtensions()
+	// instanceExtensions := vk.GetRequiredInstanceExtensions()
 	if enableDebug {
 		instanceExtensions = append(instanceExtensions,
 			"VK_EXT_debug_report\x00")
@@ -273,14 +273,14 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (VulkanDeviceI
 	// these layers must be included in APK,
 	// see Android.mk and ValidationLayers.mk
 	instanceLayers := []string{
-	// "VK_LAYER_GOOGLE_threading\x00",
-	// "VK_LAYER_LUNARG_parameter_validation\x00",
-	// "VK_LAYER_LUNARG_object_tracker\x00",
-	// "VK_LAYER_LUNARG_core_validation\x00",
-	// "VK_LAYER_LUNARG_api_dump\x00",
-	// "VK_LAYER_LUNARG_image\x00",
-	// "VK_LAYER_LUNARG_swapchain\x00",
-	// "VK_LAYER_GOOGLE_unique_objects\x00",
+		// "VK_LAYER_GOOGLE_threading\x00",
+		// "VK_LAYER_LUNARG_parameter_validation\x00",
+		// "VK_LAYER_LUNARG_object_tracker\x00",
+		// "VK_LAYER_LUNARG_core_validation\x00",
+		// "VK_LAYER_LUNARG_api_dump\x00",
+		// "VK_LAYER_LUNARG_image\x00",
+		// "VK_LAYER_LUNARG_swapchain\x00",
+		// "VK_LAYER_GOOGLE_unique_objects\x00",
 	}
 
 	instanceCreateInfo := vk.InstanceCreateInfo{
@@ -302,7 +302,8 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (VulkanDeviceI
 
 	// Phase 2: vk.CreateAndroidSurface with vk.AndroidSurfaceCreateInfo
 
-	err = vk.Error(vk.CreateWindowSurface(v.Instance, window, nil, &v.Surface))
+	v.Surface = vk.SurfaceFromPointer(createSurfaceFunc(v.Instance))
+	// err = vk.Error(vk.CreateWindowSurface(v.Instance, window, nil, &v.Surface))
 	if err != nil {
 		vk.DestroyInstance(v.Instance, nil)
 		err = fmt.Errorf("vkCreateWindowSurface failed with %s", err)
@@ -324,14 +325,14 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr) (VulkanDeviceI
 	// these layers must be included in APK,
 	// see Android.mk and ValidationLayers.mk
 	deviceLayers := []string{
-	// "VK_LAYER_GOOGLE_threading\x00",
-	// "VK_LAYER_LUNARG_parameter_validation\x00",
-	// "VK_LAYER_LUNARG_object_tracker\x00",
-	// "VK_LAYER_LUNARG_core_validation\x00",
-	// "VK_LAYER_LUNARG_api_dump\x00",
-	// "VK_LAYER_LUNARG_image\x00",
-	// "VK_LAYER_LUNARG_swapchain\x00",
-	// "VK_LAYER_GOOGLE_unique_objects\x00",
+		// "VK_LAYER_GOOGLE_threading\x00",
+		// "VK_LAYER_LUNARG_parameter_validation\x00",
+		// "VK_LAYER_LUNARG_object_tracker\x00",
+		// "VK_LAYER_LUNARG_core_validation\x00",
+		// "VK_LAYER_LUNARG_api_dump\x00",
+		// "VK_LAYER_LUNARG_image\x00",
+		// "VK_LAYER_LUNARG_swapchain\x00",
+		// "VK_LAYER_GOOGLE_unique_objects\x00",
 	}
 
 	queueCreateInfos := []vk.DeviceQueueCreateInfo{{
@@ -836,7 +837,7 @@ func CreateGraphicsPipeline(device vk.Device,
 		Offset:   0,
 	}}
 	vertexInputState := vk.PipelineVertexInputStateCreateInfo{
-		SType: vk.StructureTypePipelineVertexInputStateCreateInfo,
+		SType:                           vk.StructureTypePipelineVertexInputStateCreateInfo,
 		VertexBindingDescriptionCount:   1,
 		PVertexBindingDescriptions:      vertexInputBindings,
 		VertexAttributeDescriptionCount: 1,
