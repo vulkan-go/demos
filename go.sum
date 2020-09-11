@@ -1,0 +1,10 @@
+github.com/vulkan-go/asche v0.0.0-20190912134304-d4b318b67e07 h1:QIXP1nx5b+YZt1cKDP5SR/89tRXrLxWslBBFBvH/+Y0=
+github.com/vulkan-go/asche v0.0.0-20190912134304-d4b318b67e07/go.mod h1:fIbNY6YffQRtdF22h26OXRprI/BGOWPKlxJWtNC78OA=
+github.com/vulkan-go/glfw v0.0.0-20190520160600-32f33e359ff2 h1:jPnSXM1EM+6J1MbKbUZvQWkuS6Z9lPWRxTHn1NPsyNY=
+github.com/vulkan-go/glfw v0.0.0-20190520160600-32f33e359ff2/go.mod h1:qui9jo5J26j9fXv2x3bySGThxYkQZt4SgsPIZRtZAbQ=
+github.com/vulkan-go/vulkan v0.0.0-20200123094538-aa511c71e200 h1:Gd8JCplUKwEoAx/9s/zL9DQzNdxmWidxd2uM4zVpURw=
+github.com/vulkan-go/vulkan v0.0.0-20200123094538-aa511c71e200/go.mod h1:X6Qqg0j5A5cYHhFXUOl6TL/vYdyh/ajvyCvh+sEHQFI=
+github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2 h1:LPYwXwwHigHHFX3SFa9W9zBIa5reyaLJos2e95eHh68=
+github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2/go.mod h1:Y8IYP9aVODN3Vnw1FCqygCG5IWyYBeBlZqQ5aX+fHFw=
+github.com/xlab/linmath v0.0.0-20170502193301-512668b827be h1:J/lWrXhpS1n3HRy18iqZnIhQqGSrvKnXQpVRNG5rKqM=
+github.com/xlab/linmath v0.0.0-20170502193301-512668b827be/go.mod h1:fgIYDv0Jdzzt+7Us/LdHhBL5N7xqDoj7Jgyf9da1mH4=
