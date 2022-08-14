@@ -43,6 +43,7 @@ func main() {
 	)
 
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
+	glfw.WindowHint(glfw.Resizable, glfw.False)
 	window, err := glfw.CreateWindow(640, 480, "Vulkan Info", nil, nil)
 	orPanic(err)
 
@@ -96,7 +97,9 @@ func main() {
 				continue
 			}
 			glfw.PollEvents()
-			vulkandraw.VulkanDrawFrame(v, s, r)
+			if window.GetAttrib(glfw.Iconified) != 1 {
+				vulkandraw.VulkanDrawFrame(v, s, r)
+			}
 		}
 	}
 }
