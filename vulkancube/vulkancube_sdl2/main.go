@@ -30,7 +30,7 @@ func (a *Application) VulkanSurface(instance vk.Instance) (surface vk.Surface) {
 		log.Println("vulkan error:", err)
 		return vk.NullSurface
 	}
-	surf := vk.SurfaceFromPointer(surfPtr)
+	surf := vk.SurfaceFromPointer(uintptr(surfPtr))
 	return surf
 }
 

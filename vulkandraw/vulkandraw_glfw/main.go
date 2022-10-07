@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/vulkan-go/demos/vulkandraw"
-	"github.com/vulkan-go/glfw/v3.3/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	vk "github.com/vulkan-go/vulkan"
 	"github.com/xlab/closer"
 )
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	v, err = vulkandraw.NewVulkanDevice(appInfo,
-		window.GLFWWindow(),
+		uintptr(window.Handle()),
 		window.GetRequiredInstanceExtensions(),
 		createSurface)
 	orPanic(err)
