@@ -1,22 +1,15 @@
-ANDROID_TOOLCHAIN_DIR ?= $(shell pwd)/toolchain
-ANDROID_API ?= 21
-ANDROID_SYSROOT = $(NDK)/platforms/android-$(ANDROID_API)/arch-arm
+OS=linux
+ANDROID_API ?= 23
+ANDROID_TOOLCHAIN_DIR ?= $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/$(OS)-x86_64/bin
 
-all: toolchain build apk
-
-toolchain:
-	$(NDK)/build/tools/make_standalone_toolchain.py \
-		--api=$(ANDROID_API) --install-dir=$(ANDROID_TOOLCHAIN_DIR) \
-		--arch=arm --stl libc++
+all: build apk
 
 build:
 	mkdir -p android/jni/lib
-	CC="$(ANDROID_TOOLCHAIN_DIR)/bin/arm-linux-androideabi-gcc" \
-	CXX="$(ANDROID_TOOLCHAIN_DIR)/bin/arm-linux-androideabi-g++" \
-	CGO_CFLAGS="-march=armv7-a" \
+	CC="$(ANDROID_TOOLCHAIN_DIR)/aarch64-linux-android$(ANDROID_API)-clang" \
+	CXX="$(ANDROID_TOOLCHAIN_DIR)/aarch64-linux-android$(ANDROID_API)-clang++" \
 	GOOS=android \
-	GOARCH=arm \
-	GOARM=7 \
+	GOARCH=arm64 \
 	CGO_ENABLED=1 \
 	go build -buildmode=c-shared -o android/jni/lib/libvulkandraw.so
  

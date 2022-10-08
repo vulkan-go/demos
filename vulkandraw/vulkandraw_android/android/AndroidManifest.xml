@@ -3,7 +3,7 @@
         android:versionCode="1"
         android:versionName="1.0">
 
-    <uses-sdk android:minSdkVersion="21" />
+    <uses-sdk android:minSdkVersion="23" />
 
     <application android:label="VulkanDraw" android:hasCode="false">
         <activity android:name="android.app.NativeActivity"
