@@ -7,7 +7,7 @@ import (
 
 	as "github.com/vulkan-go/asche"
 	"github.com/vulkan-go/demos/vulkancube"
-	"github.com/vulkan-go/glfw/v3.3/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	vk "github.com/vulkan-go/vulkan"
 	"github.com/xlab/closer"
 )
@@ -89,6 +89,7 @@ func main() {
 	app := NewApplication(true)
 	reqDim := app.VulkanSwapchainDimensions()
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
+	glfw.WindowHint(glfw.Resizable, glfw.False)
 	window, err := glfw.CreateWindow(int(reqDim.Width), int(reqDim.Height), "VulkanCube (GLFW)", nil, nil)
 	orPanic(err)
 	app.windowHandle = window

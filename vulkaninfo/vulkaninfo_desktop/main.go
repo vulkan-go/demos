@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/vulkan-go/demos/vulkaninfo"
-	"github.com/vulkan-go/glfw/v3.3/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	vk "github.com/vulkan-go/vulkan"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	orPanic(err)
 	defer window.Destroy()
 
-	vkDevice, err := vulkaninfo.NewVulkanDevice(appInfo, window.GLFWWindow())
+	vkDevice, err := vulkaninfo.NewVulkanDevice(appInfo, uintptr(window.Handle()))
 	orPanic(err)
 	vulkaninfo.PrintInfo(vkDevice)
 	vkDevice.Destroy()
