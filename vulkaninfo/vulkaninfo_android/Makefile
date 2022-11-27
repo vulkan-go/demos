@@ -1,33 +1,48 @@
-ANDROID_TOOLCHAIN_DIR ?= $(shell pwd)/toolchain
-ANDROID_API ?= 21
-ANDROID_SYSROOT = $(NDK)/platforms/android-$(ANDROID_API)/arch-arm
+HOST_TAG ?= linux-x86_64
+API_LEVEL ?= 26
+TOOLCHAIN ?= $(NDK)/toolchains/llvm/prebuilt/$(HOST_TAG)/bin
 
-all: toolchain build apk
+all: clean build apk
+	echo "WORK DONE"
 
-toolchain:
-	$(NDK)/build/tools/make_standalone_toolchain.py \
-		--api=$(ANDROID_API) --install-dir=$(ANDROID_TOOLCHAIN_DIR) \
-		--arch=arm --stl libc++
+build: build32 build64 build-amd64
+	echo "builded all"
 
-build:
-	mkdir -p android/jni/lib
-	CC="$(ANDROID_TOOLCHAIN_DIR)/bin/arm-linux-androideabi-gcc" \
-	CXX="$(ANDROID_TOOLCHAIN_DIR)/bin/arm-linux-androideabi-g++" \
-	CGO_CFLAGS="-march=armv7-a" \
+build32:
+	echo "compile for old phones with arm (32bit)"
+	CC="$(TOOLCHAIN)/armv7a-linux-androideabi$(API_LEVEL)-clang" \
+	CXX="$(TOOLCHAIN)/armv7a-linux-androideabi$(API_LEVEL)-clang++" \
 	GOOS=android \
 	GOARCH=arm \
-	GOARM=7 \
 	CGO_ENABLED=1 \
-	go build -buildmode=c-shared -o android/jni/lib/libvulkaninfo.so
- 
-apk:
-	cd android && make
+	go build -buildmode=c-shared -o android/app/src/main/jniLibs/armeabi-v7a/libvulkaninfo.so
+
+build64:
+	echo "compile for arm64 (64bit)"
+	CC="$(TOOLCHAIN)/aarch64-linux-android$(API_LEVEL)-clang" \
+	CXX="$(TOOLCHAIN)/aarch64-linux-android$(API_LEVEL)-clang++" \
+	GOOS=android \
+	GOARCH=arm64 \
+	CGO_ENABLED=1 \
+	go build -buildmode=c-shared -o android/app/src/main/jniLibs/arm64-v8a/libvulkaninfo.so
+
+build-amd64:
+	echo "compile for emulator"
+	CC="$(TOOLCHAIN)/x86_64-linux-android$(API_LEVEL)-clang" \
+	CXX="$(TOOLCHAIN)/x86_64-linux-android$(API_LEVEL)-clang++" \
+	GOOS=android \
+	GOARCH=amd64 \
+	CGO_ENABLED=1 \
+	go build -buildmode=c-shared -o android/app/src/main/jniLibs/x86_64/libvulkaninfo.so
 
 clean:
-	cd android && make clean
+	echo "delete generated files"
+	rm -rf android/app/build
+	rm -rf android/app/build-native
 
-install:
-	cd android && make install
+apk:
+	echo "run gradle"
+	cd android; ./gradlew -q clean assembleDebug > /dev/null 2>&1
 
 listen:
 	adb logcat -c
