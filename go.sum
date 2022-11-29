@@ -14,10 +14,10 @@ github.com/veandco/go-sdl2 v0.4.5 h1:GFIjMabK7y2XWpr9sGvN7RDKHt7vrA7XPTUW60eOw+Y
 github.com/veandco/go-sdl2 v0.4.5/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 github.com/vulkan-go/asche v0.0.0-20190912134304-d4b318b67e07 h1:QIXP1nx5b+YZt1cKDP5SR/89tRXrLxWslBBFBvH/+Y0=
 github.com/vulkan-go/asche v0.0.0-20190912134304-d4b318b67e07/go.mod h1:fIbNY6YffQRtdF22h26OXRprI/BGOWPKlxJWtNC78OA=
-github.com/vulkan-go/vulkan v0.0.0-20210402152248-956e3850d8f9 h1:WFujQpkMAAd8dqccEm10n8dly4yQ/R5d2+Us7GutowA=
-github.com/vulkan-go/vulkan v0.0.0-20210402152248-956e3850d8f9/go.mod h1:Y5Ti1uUBdKDsb0W8aPtIo9krs+29Y7p6Bc9yyy4AM6g=
-github.com/xlab/android-go v0.0.0-20180723170811-ebf4d6dd1830 h1:t4JWwVd06FAAZiTLSIGzNtOQYXkX90Y3bXWwAXvjepk=
-github.com/xlab/android-go v0.0.0-20180723170811-ebf4d6dd1830/go.mod h1:cX5Ob29gFddv5hlAJN3tmNcvHuNQwUXzIP06azWW1M8=
+github.com/vulkan-go/vulkan v0.0.0-20221127130951-d13440166fa0 h1:Ap4awTVoyePaU6/vJOFwVnmqgl1n554IWSSm4KWPy9A=
+github.com/vulkan-go/vulkan v0.0.0-20221127130951-d13440166fa0/go.mod h1:Y5Ti1uUBdKDsb0W8aPtIo9krs+29Y7p6Bc9yyy4AM6g=
+github.com/xlab/android-go v0.0.0-20221106204035-3cc54d5032fa h1:fJnl39vCautixum6jJL40AULKdF1r+2/IWzPHOcFCeM=
+github.com/xlab/android-go v0.0.0-20221106204035-3cc54d5032fa/go.mod h1:WNGsHAaW0HwZ/T5KZPDOHJHtX+lHUElskKRPVtQ1/xs=
 github.com/xlab/catcher v0.0.0-20170222110830-4ce3d20cbee2 h1:Zpa3je19AZ1GU/UIgDO+87Vwa0+awqbpKprjfBb+So8=
 github.com/xlab/catcher v0.0.0-20170222110830-4ce3d20cbee2/go.mod h1:wLwj0uiLs18rq5dVL7qeTy8ZQsraFHXqas1pUVTa+8A=
 github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2 h1:LPYwXwwHigHHFX3SFa9W9zBIa5reyaLJos2e95eHh68=

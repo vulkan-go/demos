@@ -1,0 +1,10 @@
+# JetBrains IDE
+.idea/
+*.iml
+
+# Applications
+*.app
+*.exe
+*.war
+*.syso
+*.so

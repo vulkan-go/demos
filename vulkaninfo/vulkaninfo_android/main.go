@@ -38,6 +38,7 @@ func main() {
 			case event := <-nativeWindowEvents:
 				switch event.Kind {
 				case app.NativeWindowCreated:
+					vk.SetDefaultGetInstanceProcAddr()
 					err := vk.Init()
 					orPanic(err)
 					vkDevice, err = vulkaninfo.NewVulkanDevice(appInfo, event.Window.Ptr())
