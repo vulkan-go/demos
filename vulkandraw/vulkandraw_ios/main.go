@@ -11,10 +11,10 @@ import (
 
 var appInfo = &vk.ApplicationInfo{
 	SType:              vk.StructureTypeApplicationInfo,
-	ApiVersion:         vk.MakeVersion(1, 0, 0),
 	ApplicationVersion: vk.MakeVersion(1, 0, 0),
 	PApplicationName:   "VulkanDraw\x00",
 	PEngineName:        "vulkango.com\x00",
+	ApiVersion:         vk.ApiVersion10,
 }
 
 func main() {
@@ -24,13 +24,12 @@ func main() {
 			catcher.RecvDie(-1),
 		)
 		var (
-			v   vulkandraw.VulkanDeviceInfo
-			s   vulkandraw.VulkanSwapchainInfo
-			r   vulkandraw.VulkanRenderInfo
-			b   vulkandraw.VulkanBufferInfo
-			gfx vulkandraw.VulkanGfxPipelineInfo
-
-			vkActive bool
+			v        vulkandraw.VulkanDeviceInfo
+			s        vulkandraw.VulkanSwapchainInfo
+			r        vulkandraw.VulkanRenderInfo
+			b        vulkandraw.VulkanBufferInfo
+			gfx      vulkandraw.VulkanGfxPipelineInfo
+			vkActive = false
 		)
 
 		a.InitDone()
@@ -39,9 +38,27 @@ func main() {
 			case event := <-a.LifecycleEvents():
 				switch event.Kind {
 				case app.ViewDidLoad:
-					err := vk.Init()
+					err := vk.SetDefaultGetInstanceProcAddr()
 					orPanic(err)
-					v, err = vulkandraw.NewVulkanDevice(appInfo, event.View)
+					err = vk.Init()
+					orPanic(err)
+
+					// differs between Android, iOS and GLFW
+					createSurface := func(instance vk.Instance) vk.Surface {
+						var surface vk.Surface
+						result := vk.CreateWindowSurface(instance, event.View, nil, &surface)
+						if result == vk.Success {
+							//fmt.Println("CreateWindowSurface - Success")
+						}
+						if err := vk.Error(result); err != nil {
+							vk.DestroyInstance(instance, nil)
+							//fmt.Printf("vkCreateWindowSurface failed with %s\n", err)
+							panic(err)
+						}
+						return surface
+					}
+
+					v, err = vulkandraw.NewVulkanDevice(appInfo, vk.GetRequiredInstanceExtensions(), createSurface)
 					orPanic(err)
 					s, err = v.CreateSwapchain()
 					orPanic(err)
@@ -68,7 +85,7 @@ func main() {
 				}
 			case <-a.VSync():
 				if vkActive {
-					vulkandraw.VulkanDrawFrame(v, s, r)
+					vulkandraw.DrawFrame(v, s, r)
 				}
 			}
 		}

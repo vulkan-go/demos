@@ -5,18 +5,18 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/vulkan-go/demos/vulkandraw"
 	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/vulkan-go/demos/vulkandraw"
 	vk "github.com/vulkan-go/vulkan"
 	"github.com/xlab/closer"
 )
 
 var appInfo = &vk.ApplicationInfo{
 	SType:              vk.StructureTypeApplicationInfo,
-	ApiVersion:         vk.MakeVersion(1, 0, 0),
 	ApplicationVersion: vk.MakeVersion(1, 0, 0),
 	PApplicationName:   "VulkanDraw\x00",
 	PEngineName:        "vulkango.com\x00",
+	ApiVersion:         vk.ApiVersion10,
 }
 
 func init() {
@@ -44,17 +44,17 @@ func main() {
 
 	glfw.WindowHint(glfw.ClientAPI, glfw.NoAPI)
 	glfw.WindowHint(glfw.Resizable, glfw.False)
-	window, err := glfw.CreateWindow(640, 480, "Vulkan Info", nil, nil)
+	window, err := glfw.CreateWindow(640, 480, "Vulkan Draw", nil, nil)
 	orPanic(err)
 
-	createSurface := func(instance interface{}) uintptr {
+	// differs between Android, iOS and GLFW
+	createSurface := func(instance vk.Instance) vk.Surface {
 		surface, err := window.CreateWindowSurface(instance, nil)
 		orPanic(err)
-		return surface
+		return vk.SurfaceFromPointer(surface)
 	}
 
 	v, err = vulkandraw.NewVulkanDevice(appInfo,
-		uintptr(window.Handle()),
 		window.GetRequiredInstanceExtensions(),
 		createSurface)
 	orPanic(err)
@@ -98,7 +98,7 @@ func main() {
 			}
 			glfw.PollEvents()
 			if window.GetAttrib(glfw.Iconified) != 1 {
-				vulkandraw.VulkanDrawFrame(v, s, r)
+				vulkandraw.DrawFrame(v, s, r)
 			}
 		}
 	}

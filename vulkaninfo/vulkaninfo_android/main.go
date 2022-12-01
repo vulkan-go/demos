@@ -13,10 +13,10 @@ func init() {
 
 var appInfo = &vk.ApplicationInfo{
 	SType:              vk.StructureTypeApplicationInfo,
-	ApiVersion:         vk.MakeVersion(1, 0, 0),
 	ApplicationVersion: vk.MakeVersion(1, 0, 0),
 	PApplicationName:   "VulkanInfo\x00",
 	PEngineName:        "vulkango.com\x00",
+    ApiVersion:         vk.ApiVersion10,
 }
 
 func main() {
