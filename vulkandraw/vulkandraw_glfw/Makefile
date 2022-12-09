@@ -1,14 +1,28 @@
-GLFW_INCLUDE_DIR = "?"
-GLFW_LIB_DIR = "?"
 
-install:
-	CGO_CFLAGS="-I$(GLFW_INCLUDE_DIR)" CGO_LDFLAGS="-L$(GLFW_LIB_DIR)" go install
+all: windows linux darwin darwin-arm
 
-install-pkg:
-	CGO_CFLAGS="$(shell pkg-config --cflags glfw3)" CGO_LDFLAGS="$(shell pkg-config --libs glfw3)" go install
+windows:
+	GOOS=windows \
+	GOARCH=amd64 \
+	CGO_ENABLED=1 \
+	go build -ldflags="-H windowsgui"
 
-build:
-	CGO_CFLAGS="-I$(GLFW_INCLUDE_DIR)" CGO_LDFLAGS="-L$(GLFW_LIB_DIR)" go build
+linux:
+	GOOS=linux \
+	GOARCH=amd64 \
+	CGO_ENABLED=1 \
+	go build
 
-build-pkg:
-	CGO_CFLAGS="$(shell pkg-config --cflags glfw3)" CGO_LDFLAGS="$(shell pkg-config --libs glfw3)" go build
+darwin:
+	GOOS=darwin \
+	GOARCH=amd64 \
+	CGO_ENABLED=1 \
+	CGO_LDFLAGS="-L/usr/local/lib" \
+	go build
+
+darwin-arm:
+	GOOS=darwin \
+	GOARCH=arm64 \
+	CGO_ENABLED=1 \
+	CGO_LDFLAGS="-L/opt/homebrew/lib" \
+	go build

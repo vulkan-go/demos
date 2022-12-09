@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace 'org.golang.android.vulkan.info'
+    namespace 'org.golang.android.vulkan.draw'
 	compileSdk 26
 	buildToolsVersion '33.0.0'
 	ndkVersion '25.1.8937393'
 
 	defaultConfig {
-		applicationId "org.golang.android.vulkan.info"
+		applicationId "org.golang.android.vulkan.draw"
 		minSdk 26
 		//noinspection ExpiredTargetSdkVersion
 		targetSdk 26

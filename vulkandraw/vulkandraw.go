@@ -132,8 +132,7 @@ func VulkanInit(v *VulkanDeviceInfo, s *VulkanSwapchainInfo,
 	check(ret, "vk.CreateSemaphore")
 }
 
-func VulkanDrawFrame(v VulkanDeviceInfo,
-	s VulkanSwapchainInfo, r VulkanRenderInfo) bool {
+func DrawFrame(v VulkanDeviceInfo, s VulkanSwapchainInfo, r VulkanRenderInfo) bool {
 	var nextIdx uint32
 
 	// Phase 1: vk.AcquireNextImage
@@ -158,6 +157,9 @@ func VulkanDrawFrame(v VulkanDeviceInfo,
 		SType:              vk.StructureTypeSubmitInfo,
 		WaitSemaphoreCount: 1,
 		PWaitSemaphores:    r.semaphores,
+		PWaitDstStageMask: []vk.PipelineStageFlags{
+			vk.PipelineStageFlags(vk.PipelineStageColorAttachmentOutputBit),
+		},
 		CommandBufferCount: 1,
 		PCommandBuffers:    r.cmdBuffers[nextIdx:],
 	}}
@@ -218,8 +220,8 @@ func CreateRenderer(device vk.Device, displayFormat vk.Format) (VulkanRenderInfo
 		StoreOp:        vk.AttachmentStoreOpStore,
 		StencilLoadOp:  vk.AttachmentLoadOpDontCare,
 		StencilStoreOp: vk.AttachmentStoreOpDontCare,
-		InitialLayout:  vk.ImageLayoutColorAttachmentOptimal,
-		FinalLayout:    vk.ImageLayoutColorAttachmentOptimal,
+		InitialLayout:  vk.ImageLayoutUndefined,
+		FinalLayout:    vk.ImageLayoutPresentSrc,
 	}}
 	colorAttachments := []vk.AttachmentReference{{
 		Attachment: 0,
@@ -257,30 +259,21 @@ func CreateRenderer(device vk.Device, displayFormat vk.Format) (VulkanRenderInfo
 	return r, nil
 }
 
-func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr, instanceExtensions []string, createSurfaceFunc func(interface{}) uintptr) (VulkanDeviceInfo, error) {
+func NewVulkanDevice(appInfo *vk.ApplicationInfo, instanceExtensions []string, createSurfaceFunc func(vk.Instance) vk.Surface) (VulkanDeviceInfo, error) {
 	// Phase 1: vk.CreateInstance with vk.InstanceCreateInfo
 
 	existingExtensions := getInstanceExtensions()
 	log.Println("[INFO] Instance extensions:", existingExtensions)
 
-	// instanceExtensions := vk.GetRequiredInstanceExtensions()
+	//TODO deprecated extension, use VK_EXT_debug_utils instead - https://developer.android.com/ndk/guides/graphics/validation-layer
 	if enableDebug {
-		instanceExtensions = append(instanceExtensions,
-			"VK_EXT_debug_report\x00")
+		instanceExtensions = append(instanceExtensions, "VK_EXT_debug_report\x00")
 	}
 
-	// ANDROID:
-	// these layers must be included in APK,
-	// see Android.mk and ValidationLayers.mk
-	instanceLayers := []string{
-		// "VK_LAYER_GOOGLE_threading\x00",
-		// "VK_LAYER_LUNARG_parameter_validation\x00",
-		// "VK_LAYER_LUNARG_object_tracker\x00",
-		// "VK_LAYER_LUNARG_core_validation\x00",
-		// "VK_LAYER_LUNARG_api_dump\x00",
-		// "VK_LAYER_LUNARG_image\x00",
-		// "VK_LAYER_LUNARG_swapchain\x00",
-		// "VK_LAYER_GOOGLE_unique_objects\x00",
+	// ANDROID: these layers must be included in APK
+	var instanceLayers []string
+	if enableDebug {
+		instanceLayers = append(instanceLayers, "VK_LAYER_KHRONOS_validation\x00")
 	}
 
 	instanceCreateInfo := vk.InstanceCreateInfo{
@@ -302,13 +295,8 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr, instanceExtens
 
 	// Phase 2: vk.CreateAndroidSurface with vk.AndroidSurfaceCreateInfo
 
-	v.Surface = vk.SurfaceFromPointer(createSurfaceFunc(v.Instance))
-	// err = vk.Error(vk.CreateWindowSurface(v.Instance, window, nil, &v.Surface))
-	if err != nil {
-		vk.DestroyInstance(v.Instance, nil)
-		err = fmt.Errorf("vkCreateWindowSurface failed with %s", err)
-		return v, err
-	}
+	v.Surface = createSurfaceFunc(v.Instance)
+
 	if v.gpuDevices, err = getPhysicalDevices(v.Instance); err != nil {
 		v.gpuDevices = nil
 		vk.DestroySurface(v.Instance, v.Surface, nil)
@@ -321,19 +309,8 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr, instanceExtens
 
 	// Phase 3: vk.CreateDevice with vk.DeviceCreateInfo (a logical device)
 
-	// ANDROID:
-	// these layers must be included in APK,
-	// see Android.mk and ValidationLayers.mk
-	deviceLayers := []string{
-		// "VK_LAYER_GOOGLE_threading\x00",
-		// "VK_LAYER_LUNARG_parameter_validation\x00",
-		// "VK_LAYER_LUNARG_object_tracker\x00",
-		// "VK_LAYER_LUNARG_core_validation\x00",
-		// "VK_LAYER_LUNARG_api_dump\x00",
-		// "VK_LAYER_LUNARG_image\x00",
-		// "VK_LAYER_LUNARG_swapchain\x00",
-		// "VK_LAYER_GOOGLE_unique_objects\x00",
-	}
+	//TODO Device layers are deprecated
+	//deviceLayers := []string{}
 
 	queueCreateInfos := []vk.DeviceQueueCreateInfo{{
 		SType:            vk.StructureTypeDeviceQueueCreateInfo,
@@ -349,8 +326,8 @@ func NewVulkanDevice(appInfo *vk.ApplicationInfo, window uintptr, instanceExtens
 		PQueueCreateInfos:       queueCreateInfos,
 		EnabledExtensionCount:   uint32(len(deviceExtensions)),
 		PpEnabledExtensionNames: deviceExtensions,
-		EnabledLayerCount:       uint32(len(deviceLayers)),
-		PpEnabledLayerNames:     deviceLayers,
+		//EnabledLayerCount:       uint32(len(deviceLayers)),
+		//PpEnabledLayerNames:     deviceLayers,
 	}
 	var device vk.Device // we choose the first GPU available for this device
 	err = vk.Error(vk.CreateDevice(v.gpuDevices[0], &deviceCreateInfo, nil, &device))
@@ -511,6 +488,7 @@ func (v *VulkanDeviceInfo) CreateSwapchain() (VulkanSwapchainInfo, error) {
 		PresentMode:           vk.PresentModeFifo,
 		OldSwapchain:          vk.NullSwapchain,
 		Clipped:               vk.False,
+		CompositeAlpha:        vk.CompositeAlphaInheritBit,
 	}
 	s.Swapchains = make([]vk.Swapchain, 1)
 	err = vk.Error(vk.CreateSwapchain(v.Device, &swapchainCreateInfo, nil, &(s.Swapchains[0])))
@@ -585,7 +563,7 @@ func (s *VulkanSwapchainInfo) CreateFramebuffers(renderPass vk.RenderPass, depth
 			SType:           vk.StructureTypeFramebufferCreateInfo,
 			RenderPass:      renderPass,
 			Layers:          1,
-			AttachmentCount: 1, // 2 if has depthView
+			AttachmentCount: 1, // 2 if it has depthView
 			PAttachments:    attachments,
 			Width:           s.DisplaySize.Width,
 			Height:          s.DisplaySize.Height,
@@ -823,7 +801,7 @@ func CreateGraphicsPipeline(device vk.Device,
 	inputAssemblyState := vk.PipelineInputAssemblyStateCreateInfo{
 		SType:                  vk.StructureTypePipelineInputAssemblyStateCreateInfo,
 		Topology:               vk.PrimitiveTopologyTriangleList,
-		PrimitiveRestartEnable: vk.True,
+		PrimitiveRestartEnable: vk.False,
 	}
 	vertexInputBindings := []vk.VertexInputBindingDescription{{
 		Binding:   0,

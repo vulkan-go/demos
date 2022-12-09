@@ -1,13 +1,16 @@
+//go:build android
+// +build android
+
 package main
 
 import (
 	"log"
 
-	"vulkandraw"
 	vk "github.com/vulkan-go/vulkan"
 	"github.com/xlab/android-go/android"
 	"github.com/xlab/android-go/app"
 	"github.com/xlab/catcher"
+	"github.com/vulkan-go/demos/vulkandraw"
 )
 
 func init() {
@@ -16,10 +19,10 @@ func init() {
 
 var appInfo = &vk.ApplicationInfo{
 	SType:              vk.StructureTypeApplicationInfo,
-	ApiVersion:         vk.MakeVersion(1, 0, 0),
 	ApplicationVersion: vk.MakeVersion(1, 0, 0),
 	PApplicationName:   "VulkanDraw\x00",
 	PEngineName:        "vulkango.com\x00",
+	ApiVersion:         vk.ApiVersion10,
 }
 
 func main() {
@@ -34,13 +37,12 @@ func main() {
 			catcher.RecvDie(-1),
 		)
 		var (
-			v   vulkandraw.VulkanDeviceInfo
-			s   vulkandraw.VulkanSwapchainInfo
-			r   vulkandraw.VulkanRenderInfo
-			b   vulkandraw.VulkanBufferInfo
-			gfx vulkandraw.VulkanGfxPipelineInfo
-
-			vkActive bool
+			v        vulkandraw.VulkanDeviceInfo
+			s        vulkandraw.VulkanSwapchainInfo
+			r        vulkandraw.VulkanRenderInfo
+			b        vulkandraw.VulkanBufferInfo
+			gfx      vulkandraw.VulkanGfxPipelineInfo
+			vkActive = false
 		)
 
 		a.HandleNativeWindowEvents(nativeWindowEvents)
@@ -65,9 +67,27 @@ func main() {
 			case event := <-nativeWindowEvents:
 				switch event.Kind {
 				case app.NativeWindowCreated:
-					err := vk.Init()
+					err := vk.SetDefaultGetInstanceProcAddr()
 					orPanic(err)
-					v, err = vulkandraw.NewVulkanDevice(appInfo, event.Window.Ptr())
+					err = vk.Init()
+					orPanic(err)
+
+					// differs between Android, iOS and GLFW
+					createSurface := func(instance vk.Instance) vk.Surface {
+						var surface vk.Surface
+						result := vk.CreateWindowSurface(instance, event.Window.Ptr(), nil, &surface)
+						if result == vk.Success {
+							//fmt.Println("CreateWindowSurface - Success")
+						}
+						if err := vk.Error(result); err != nil {
+							vk.DestroyInstance(instance, nil)
+							//fmt.Printf("vkCreateWindowSurface failed with %s\n", err)
+							panic(err)
+						}
+						return surface
+					}
+
+					v, err = vulkandraw.NewVulkanDevice(appInfo, vk.GetRequiredInstanceExtensions(), createSurface)
 					orPanic(err)
 					s, err = v.CreateSwapchain()
 					orPanic(err)
@@ -91,7 +111,7 @@ func main() {
 					vulkandraw.DestroyInOrder(&v, &s, &r, &b, &gfx)
 				case app.NativeWindowRedrawNeeded:
 					if vkActive {
-						vulkandraw.VulkanDrawFrame(v, s, r)
+						vulkandraw.DrawFrame(v, s, r)
 					}
 					a.NativeWindowRedrawDone()
 				}
